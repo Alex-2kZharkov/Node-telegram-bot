@@ -6,8 +6,8 @@ export interface AppResponse<T = any> {
 }
 
 export enum SortDirection {
-  ASC = "ASC",
-  DESC = "DESC",
+  ASC = 'ASC',
+  DESC = 'DESC',
 }
 
 export interface BaseSortingFields {
@@ -16,7 +16,7 @@ export interface BaseSortingFields {
 }
 
 export enum RoleCodes {
-  ADMIN = "ADMIN",
-  CUSTOMER = "CUSTOMER",
-  ANONYME = "ANONYME"
+  ADMIN = 'ADMIN',
+  CUSTOMER = 'CUSTOMER',
+  ANONYME = 'ANONYME',
 }

@@ -3,21 +3,21 @@ import { AppBaseEntity } from "./app-base-entity";
 import { RoleEntity } from "./role.entity";
 import { OrderEntity } from "./order.entity";
 
-@Entity("users")
+@Entity('users')
 export class UserEntity extends AppBaseEntity {
-  @Column("varchar", { nullable: false, unique: true })
+  @Column('varchar', { nullable: false, unique: true })
   telegramId: string;
 
-  @Column("varchar", { nullable: false, unique: true })
+  @Column('varchar', { nullable: false, unique: true })
   name: string;
 
-  @Column("varchar", { nullable: true })
+  @Column('varchar', { nullable: true })
   email: string;
 
   @ManyToOne(
     () => RoleEntity,
 
-    { eager: true, nullable: false }
+    { eager: true, nullable: false },
   )
   @JoinColumn()
   role: RoleEntity;

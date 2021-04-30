@@ -3,20 +3,20 @@ import { AppBaseEntity } from "./app-base-entity";
 import { CatalogEntity } from "./catalog.entity";
 import { OrderEntity } from "./order.entity";
 
-@Entity("stuff")
+@Entity('stuff')
 export class StuffEntity extends AppBaseEntity {
-  @Column("varchar", { nullable: false, unique: true })
+  @Column('varchar', { nullable: false, unique: true })
   name: string;
 
-  @Column("number", { nullable: false, unique: true })
+  @Column('number', { nullable: false, unique: true })
   quantity: number;
 
-  @Column("number", { nullable: false, unique: true })
+  @Column('number', { nullable: false, unique: true })
   amount: number;
 
   @ManyToOne(() => CatalogEntity, (catalog) => catalog.stuff, {
     nullable: false,
-    onDelete: "CASCADE"
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   catalog: CatalogEntity;
