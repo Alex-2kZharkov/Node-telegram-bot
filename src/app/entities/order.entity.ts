@@ -19,9 +19,9 @@ export class OrderEntity extends AppBaseEntity {
   @JoinColumn()
   users: UserEntity;
 
-  @Column('number', { nullable: false, unique: true })
+  @Column('integer', { nullable: false, unique: true })
   quantity: number;
 
-  @Column('number', { nullable: false, unique: true })
+  @Column('integer', { nullable: false, unique: true })
   amount: number;
 }
