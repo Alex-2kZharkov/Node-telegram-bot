@@ -3,8 +3,7 @@ import { typeOrmConfig } from "./app/config/database/typeorm.config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TelegrafModule } from "nestjs-telegraf";
 import { config } from "./app/config/app.config";
-import { TelegramService } from "./app/modules/bot/telegram.service";
-import { TelegramUpdate } from "./app/modules/bot/telegram.update";
+import { TelegramModule } from "./app/modules/bot/telegram.module";
 
 @Module({
   imports: [
@@ -12,7 +11,7 @@ import { TelegramUpdate } from "./app/modules/bot/telegram.update";
     TelegrafModule.forRoot({
       token: config.BOT_TOKEN,
     }),
+    TelegramModule,
   ],
-  providers: [TelegramService, TelegramUpdate],
 })
 export class AppModule {}

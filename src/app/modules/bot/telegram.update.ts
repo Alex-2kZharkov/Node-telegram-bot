@@ -1,4 +1,4 @@
-import { Ctx, Start, Update } from "nestjs-telegraf";
+import { Command, Ctx, Start, Update } from "nestjs-telegraf";
 import { Context } from "telegraf";
 import { TelegramService } from "./telegram.service";
 
@@ -10,5 +10,11 @@ export class TelegramUpdate {
   async start(@Ctx() ctx: Context) {
     const greetings = this.telegramService.getGreetings();
     await ctx.reply(greetings);
+  }
+
+  @Command('new_order')
+  async showCategories(@Ctx() ctx: Context) {
+    const catalogsString = await this.telegramService.getCatalogs();
+    await ctx.reply(catalogsString, { parse_mode: 'HTML' });
   }
 }

@@ -45,6 +45,21 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## How to work with migrations?
+To generate migration from model changes
+```
+$ npm run build
+$ npm run migrate -- --name MigraitionName
+```
+To run all pending migrations
+```
+$ npm run migration:up
+```
+
+To revert last executed migration
+```
+$ npm run migration:down
+```
 ## Test
 
 ```bash
