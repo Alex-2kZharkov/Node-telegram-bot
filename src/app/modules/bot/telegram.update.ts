@@ -1,11 +1,11 @@
-import { Injectable } from "@nestjs/common";
 import { Ctx, Hears, Help, On, Start, Update } from "nestjs-telegraf";
 import { Context } from "telegraf";
-
+import { TelegramService } from "./telegram.service";
 
 @Update()
-@Injectable()
-export class TelegramService {
+export class TelegramUpdate {
+  constructor(private telegramService: TelegramService) {}
+
   @Start()
   async start(@Ctx() ctx: Context) {
     await ctx.reply('Welcome');
