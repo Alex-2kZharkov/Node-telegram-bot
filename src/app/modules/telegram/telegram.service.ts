@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { commands } from "../../config/telegram/telegram.config";
 import { GREETING } from "../../utils/constants";
 import { CatalogRepository } from "../../repositories";
+import { Catalog } from "../interfaces";
 
 @Injectable()
 export class TelegramService {
@@ -14,11 +15,11 @@ export class TelegramService {
     );
   }
 
-  async getCatalogs(): Promise<string> {
+  async getCatalogsNames(): Promise<Catalog[]> {
     const catalogs = await this.catalogRepo.find();
-    return catalogs.reduce(
-      (acc, item) => (acc += `● ${item.name} - ${item.description}\n`),
-      '<b>Pick one of the catalog:</b>\n',
-    );
+    return catalogs.map(({ name, description }) => ({
+      name,
+      description,
+    }));
   }
 }

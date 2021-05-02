@@ -1,6 +1,8 @@
-import { Command, Ctx, Start, Update } from "nestjs-telegraf";
+import { Command, Ctx, On, Start, Update } from "nestjs-telegraf";
 import { Context } from "telegraf";
 import { TelegramService } from "./telegram.service";
+
+import { formCatalogString } from "../../utils/helpers";
 
 @Update()
 export class TelegramUpdate {
@@ -14,7 +16,14 @@ export class TelegramUpdate {
 
   @Command('new_order')
   async showCategories(@Ctx() ctx: Context) {
-    const catalogsString = await this.telegramService.getCatalogs();
+    const catalogs = await this.telegramService.getCatalogsNames();
+    const catalogsString = formCatalogString(catalogs);
+
     await ctx.reply(catalogsString, { parse_mode: 'HTML' });
+  }
+
+  @On('text')
+  async showCategoryItems(@Ctx() ctx: Context) {
+    await ctx.reply("Show me what you've got");
   }
 }

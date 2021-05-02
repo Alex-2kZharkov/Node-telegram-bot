@@ -3,7 +3,7 @@ import { typeOrmConfig } from "./app/config/database/typeorm.config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TelegrafModule } from "nestjs-telegraf";
 import { config } from "./app/config/app.config";
-import { TelegramModule } from "./app/modules/bot/telegram.module";
+import { TelegramModule } from "./app/modules/telegram/telegram.module";
 
 @Module({
   imports: [
