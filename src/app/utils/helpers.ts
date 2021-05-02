@@ -1,8 +1,9 @@
 import { Catalog } from "../modules/interfaces";
+import { PICK_CATALOG_TEXT } from "./constants";
 
 export const formCatalogString = (catalogs: Catalog[]): string => {
   return catalogs.reduce(
     (acc, item) => (acc += `● ${item.name} - ${item.description}\n`),
-    '<b>Pick name of the catalog:</b>\n',
+    PICK_CATALOG_TEXT,
   );
 }

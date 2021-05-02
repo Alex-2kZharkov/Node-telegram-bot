@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { commands } from "../../config/telegram/telegram.config";
 import { GREETING } from "../../utils/constants";
 import { CatalogRepository } from "../../repositories";
-import { Catalog } from "../interfaces";
+import { Catalog, Context } from "../interfaces";
 
 @Injectable()
 export class TelegramService {
@@ -21,5 +21,9 @@ export class TelegramService {
       name,
       description,
     }));
+  }
+
+  async handleTextMessage(ctx: Context): Promise<string> {
+    return '';
   }
 }

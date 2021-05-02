@@ -1,7 +1,6 @@
-import { Command, Ctx, On, Start, Update } from "nestjs-telegraf";
-import { Context } from "telegraf";
+import { Command, Ctx, Message, On, Start, Update } from "nestjs-telegraf";
 import { TelegramService } from "./telegram.service";
-
+import { Context } from "../interfaces";
 import { formCatalogString } from "../../utils/helpers";
 
 @Update()
@@ -23,7 +22,8 @@ export class TelegramUpdate {
   }
 
   @On('text')
-  async showCategoryItems(@Ctx() ctx: Context) {
+  async showCategoryItems(@Message('text') text: string, @Ctx() ctx: Context) {
+    await this.telegramService.handleTextMessage(ctx);
     await ctx.reply("Show me what you've got");
   }
 }
