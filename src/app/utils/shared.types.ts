@@ -20,3 +20,5 @@ export enum RoleCodes {
   CUSTOMER = 'CUSTOMER',
   ANONYME = 'ANONYME',
 }
+
+

@@ -1,0 +1,1 @@
+export const GREETING = 'Welcome to Tech Market - the best place to buy gadgets💻\n'
