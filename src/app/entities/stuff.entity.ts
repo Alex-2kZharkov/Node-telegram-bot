@@ -8,10 +8,10 @@ export class StuffEntity extends AppBaseEntity {
   @Column('varchar', { nullable: false, unique: true })
   name: string;
 
-  @Column('integer', { nullable: false, unique: true })
+  @Column('integer', { nullable: false })
   quantity: number;
 
-  @Column('integer', { nullable: false, unique: true })
+  @Column('integer', { nullable: false })
   amount: number;
 
   @ManyToOne(() => CatalogEntity, (catalog) => catalog.stuff, {

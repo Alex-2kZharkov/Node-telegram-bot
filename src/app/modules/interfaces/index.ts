@@ -5,3 +5,9 @@ export interface Catalog {
   description: string;
 }
 export interface Context extends Scenes.SceneContext {}
+
+export interface StuffFields {
+  id: string,
+  name: string,
+  amount: number
+}

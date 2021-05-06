@@ -21,9 +21,9 @@ export class TelegramUpdate {
     await ctx.reply(catalogsString, { parse_mode: 'HTML' });
   }
 
-  @On('text')
-  async showCategoryItems(@Message('text') text: string, @Ctx() ctx: Context) {
-    await this.telegramService.handleTextMessage(ctx);
-    await ctx.reply("Show me what you've got");
+  @On('message')
+  async showCategoryItems(@Message('text') message: string, @Ctx() ctx: Context) {
+    const result = await this.telegramService.handleTextMessage(ctx, message);
+    await ctx.reply(result, { parse_mode: 'HTML' });
   }
 }
