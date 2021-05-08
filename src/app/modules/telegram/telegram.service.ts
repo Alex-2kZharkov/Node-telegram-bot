@@ -3,6 +3,7 @@ import { commands } from "../../config/telegram/telegram.config";
 import {
   CANCEL_ORDER_PREFIX,
   CATALOG_PREFIX,
+  CONFIRM_ORDER_SPLITTER,
   DEFAULT_MESSAGE,
   GREETING,
   NEW_ORDER_PREFIX,
@@ -16,7 +17,14 @@ import {
   UserfRepository
 } from "../../repositories";
 import { Catalog, Context, StuffFields } from "../interfaces";
-import { formCancelOrderString, formOrderOptions, formStuffString, parseMessage } from "../../utils/helpers";
+import {
+  formCancelledOrderString,
+  formConfirmedOrderString,
+  formNotEnoughStuff,
+  formOrderOptions,
+  formStuffString,
+  parseMessage
+} from "../../utils/helpers";
 import { StuffEntity } from "../../entities";
 import { OrderStatuses, RoleCodes } from "../../utils/shared.types";
 
@@ -57,6 +65,11 @@ export class TelegramService {
     if (message.includes(CANCEL_ORDER_PREFIX)) {
       return this.cancelOrder(message);
     }
+
+    if (message.includes(CONFIRM_ORDER_SPLITTER)) {
+      return this.confirmOrder(message);
+    }
+
     return DEFAULT_MESSAGE;
   }
 
@@ -113,6 +126,32 @@ export class TelegramService {
     order.status = OrderStatuses.CANCELLED;
     await order.save();
 
-    return formCancelOrderString(order.users?.name);
+    return formCancelledOrderString(order.users?.name);
+  }
+
+  async confirmOrder(message: string) {
+    const [orderId, strQuantity] = parseMessage(
+      message,
+      CONFIRM_ORDER_SPLITTER,
+    );
+    const requiredQuantity = +strQuantity;
+    const order = await this.orderRepo.findOne(orderId);
+    const { quantity, amount } = order.stuff;
+
+    if (requiredQuantity > order.stuff.quantity) {
+      return formNotEnoughStuff(quantity);
+    }
+
+    const cost = Math.round((amount / quantity) * requiredQuantity);
+    order.stuff.quantity -= requiredQuantity;
+    order.stuff.amount -= cost;
+    await order.stuff.save();
+
+    order.quantity = requiredQuantity;
+    order.amount = cost;
+    order.status = OrderStatuses.CONFIRMED;
+    await order.save();
+
+    return formConfirmedOrderString(order.users.name, cost);
   }
 }

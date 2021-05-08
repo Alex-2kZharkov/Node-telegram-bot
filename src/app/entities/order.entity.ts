@@ -9,6 +9,7 @@ export class OrderEntity extends AppBaseEntity {
   @ManyToOne(() => StuffEntity, (stuff) => stuff.orders, {
     nullable: false,
     onDelete: 'CASCADE',
+    eager: true
   })
   @JoinColumn()
   stuff: StuffEntity;

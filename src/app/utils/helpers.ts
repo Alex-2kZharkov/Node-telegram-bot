@@ -27,6 +27,15 @@ export const formOrderOptions = (orderId: string, status: OrderStatuses): string
       2️⃣ Cancel order by sending code and word cancel: <b>code:cancel</b>`;
 }
 
-export const formCancelOrderString = (name: string): string => {
+export const formCancelledOrderString = (name: string): string => {
   return `Dear, ${name}, your order was cancelled. Let's try again`
+}
+
+export const formNotEnoughStuff = (quantity: number): string => {
+  return `Sorry, but we only have ${quantity} left`;
+}
+
+export const formConfirmedOrderString = (name: string, totalAmount: number): string => {
+  return `Dear, ${name}, your order was ${OrderStatuses.CONFIRMED}. You have to pay \n💸<b>${totalAmount}</b> when you and our employee meet each other.
+  Thanks for the shopping. You can try something else`;
 }

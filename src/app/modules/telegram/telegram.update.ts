@@ -2,7 +2,7 @@ import { Command, Ctx, Message, On, Start, Update } from "nestjs-telegraf";
 import { TelegramService } from "./telegram.service";
 import { Context } from "../interfaces";
 import { formCatalogString } from "../../utils/helpers";
-import { CANCEL_ORDER_PREFIX } from "../../utils/constants";
+import { CANCEL_ORDER_PREFIX, CONFIRM_ORDER_SPLITTER } from "../../utils/constants";
 
 @Update()
 export class TelegramUpdate {
@@ -27,7 +27,7 @@ export class TelegramUpdate {
     const result = await this.telegramService.handleTextMessage(ctx, message);
     await ctx.reply(result, { parse_mode: 'HTML' });
 
-    if (message.includes(CANCEL_ORDER_PREFIX)) {
+    if (message.includes(CANCEL_ORDER_PREFIX) || message.includes(CONFIRM_ORDER_SPLITTER)) {
      await this.start(ctx);
     }
   }

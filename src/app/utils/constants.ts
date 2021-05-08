@@ -2,6 +2,7 @@ export const GREETING = 'Welcome to Tech Market - the best place to buy gadgetsð
 export const CATALOG_PREFIX = 'catalog-';
 export const NEW_ORDER_PREFIX = 'new:';
 export const CANCEL_ORDER_PREFIX = ':cancel';
+export const CONFIRM_ORDER_SPLITTER = ':';
 
 export const AllowedPrefixes = {
   prefixes: [CATALOG_PREFIX, NEW_ORDER_PREFIX]
