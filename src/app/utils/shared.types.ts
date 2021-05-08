@@ -21,4 +21,9 @@ export enum RoleCodes {
   ANONYME = 'ANONYME',
 }
 
-
+export enum OrderStatuses {
+  UNCONFIRMED= 'UNCONFIRMED',
+  CANCELLED = 'CANCELLED',
+  CONFIRMED = 'CONFIRMED',
+  DELIVERED = 'DELIVERED'
+}
