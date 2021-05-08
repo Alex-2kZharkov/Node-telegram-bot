@@ -1,6 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { commands } from "../../config/telegram/telegram.config";
-import { CATALOG_PREFIX, DEFAULT_MESSAGE, GREETING, NEW_ORDER_PREFIX, SPLITTER } from "../../utils/constants";
+import {
+  CANCEL_ORDER_PREFIX,
+  CATALOG_PREFIX,
+  DEFAULT_MESSAGE,
+  GREETING,
+  NEW_ORDER_PREFIX,
+  SPLITTER
+} from "../../utils/constants";
 import {
   CatalogRepository,
   OrderRepository,
@@ -9,9 +16,9 @@ import {
   UserfRepository
 } from "../../repositories";
 import { Catalog, Context, StuffFields } from "../interfaces";
-import { formOrderOptions, formStuffString, parseMessage } from "../../utils/helpers";
+import { formCancelOrderString, formOrderOptions, formStuffString, parseMessage } from "../../utils/helpers";
 import { StuffEntity } from "../../entities";
-import { RoleCodes } from "../../utils/shared.types";
+import { OrderStatuses, RoleCodes } from "../../utils/shared.types";
 
 @Injectable()
 export class TelegramService {
@@ -46,6 +53,10 @@ export class TelegramService {
     if (message.includes(NEW_ORDER_PREFIX)) {
       return this.handleNewOrder(ctx, message);
     }
+
+    if (message.includes(CANCEL_ORDER_PREFIX)) {
+      return this.cancelOrder(message);
+    }
     return DEFAULT_MESSAGE;
   }
 
@@ -79,21 +90,29 @@ export class TelegramService {
     const stuff = await this.stuffRepo.findOne(stuffId);
     const role = await this.roleRepo.findOne({ code: RoleCodes.CUSTOMER });
 
-    console.log(ctx, id, first_name, last_name);
-    console.log('##################', stuffId);
     const user = this.userRepo.create({
       telegramId: id.toString(),
       name: `${first_name} ${last_name}`,
       role,
     });
+    await user.save();
 
     const order = this.orderRepo.create({
       stuff,
       users: user,
     });
-    await user.save();
+
     await order.save();
 
-    return formOrderOptions(order.id);
+    return formOrderOptions(order.id, order.status);
+  }
+
+  async cancelOrder(message: string) {
+    const [orderId] = parseMessage(message, CANCEL_ORDER_PREFIX);
+    const order = await this.orderRepo.findOne(orderId);
+    order.status = OrderStatuses.CANCELLED;
+    await order.save();
+
+    return formCancelOrderString(order.users?.name);
   }
 }

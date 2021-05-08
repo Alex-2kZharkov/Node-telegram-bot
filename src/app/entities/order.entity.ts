@@ -16,6 +16,7 @@ export class OrderEntity extends AppBaseEntity {
   @ManyToOne(() => UserEntity, (user) => user.orders, {
     nullable: false,
     onDelete: 'CASCADE',
+    eager: true
   })
   @JoinColumn()
   users: UserEntity;

@@ -2,6 +2,7 @@ import { Command, Ctx, Message, On, Start, Update } from "nestjs-telegraf";
 import { TelegramService } from "./telegram.service";
 import { Context } from "../interfaces";
 import { formCatalogString } from "../../utils/helpers";
+import { CANCEL_ORDER_PREFIX } from "../../utils/constants";
 
 @Update()
 export class TelegramUpdate {
@@ -25,5 +26,9 @@ export class TelegramUpdate {
   async showCategoryItems(@Message('text') message: string, @Ctx() ctx: Context) {
     const result = await this.telegramService.handleTextMessage(ctx, message);
     await ctx.reply(result, { parse_mode: 'HTML' });
+
+    if (message.includes(CANCEL_ORDER_PREFIX)) {
+     await this.start(ctx);
+    }
   }
 }

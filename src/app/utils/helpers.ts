@@ -1,5 +1,6 @@
 import { Catalog, StuffFields } from "../modules/interfaces";
 import { PICK_CATALOG_TEXT, STUFF_TITLE } from "./constants";
+import { OrderStatuses } from "./shared.types";
 
 export const formCatalogString = (catalogs: Catalog[]): string => {
   return catalogs.reduce(
@@ -19,9 +20,13 @@ export const formStuffString = (stuff: StuffFields[]): string => {
   );
 };
 
-export const formOrderOptions = (orderId: string): string => {
-  return `We are in progress of creating your order. This is code temporary code of order: <b>${orderId}</b>\n
+export const formOrderOptions = (orderId: string, status: OrderStatuses): string => {
+  return `Your order has status ${status} and temporary code: <b>${orderId}</b>\n
       You have two options:\n
-      1️⃣ Confirm order by sending code and quantity of stuff: code:0\n
-      2️⃣ Cancel order by sending code and word cancel: code:cancel`;
+      1️⃣ Confirm order by sending code and quantity of stuff: <b>code:how many stuff you want</b>\n
+      2️⃣ Cancel order by sending code and word cancel: <b>code:cancel</b>`;
+}
+
+export const formCancelOrderString = (name: string): string => {
+  return `Dear, ${name}, your order was cancelled. Let's try again`
 }
