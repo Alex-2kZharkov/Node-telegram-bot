@@ -26,11 +26,14 @@
     "migrate": "ts-node ./node_modules/.bin/typeorm migrations:generate"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^1.6.0",
     "@nestjs/common": "^7.6.15",
     "@nestjs/core": "^7.6.15",
     "@nestjs/platform-express": "^7.6.15",
     "@nestjs/typeorm": "^7.1.5",
+    "@types/nodemailer": "^6.4.1",
     "nestjs-telegraf": "^2.2.2",
+    "nodemailer": "^6.6.0",
     "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

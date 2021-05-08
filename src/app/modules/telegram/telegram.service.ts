@@ -25,8 +25,9 @@ import {
   formStuffString,
   parseMessage
 } from "../../utils/helpers";
-import { StuffEntity } from "../../entities";
-import { OrderStatuses, RoleCodes } from "../../utils/shared.types";
+import { OrderEntity, StuffEntity } from "../../entities";
+import { OrderFields, OrderStatuses, RoleCodes } from "../../utils/shared.types";
+import { MailService } from "../../shared/services/mail.service";
 
 @Injectable()
 export class TelegramService {
@@ -36,6 +37,7 @@ export class TelegramService {
     private orderRepo: OrderRepository,
     private userRepo: UserfRepository,
     private roleRepo: RoleRepository,
+    private mailService: MailService,
   ) {}
   getGreetings(): string {
     return commands.reduce(
@@ -152,6 +154,29 @@ export class TelegramService {
     order.status = OrderStatuses.CONFIRMED;
     await order.save();
 
+    await this.sendNewOrderEmail(order);
+
     return formConfirmedOrderString(order.users.name, cost);
+  }
+
+  async sendNewOrderEmail({id, createdAt, users, stuff, quantity, amount, status}: OrderEntity): Promise<void> {
+    const orderOptions = {
+      status,
+      id,
+      createdAt,
+      catalog: stuff.catalog.name,
+      customerName: users.name,
+      stuff: stuff.name,
+      orderQuantity: quantity,
+      orderAmount: amount,
+      stuffQuantity: stuff.quantity,
+      stuffAmount: stuff.amount,
+    } as OrderFields;
+
+    const messageText = this.mailService.getNewOrderText(orderOptions);
+    const adminRole = await this.roleRepo.findOne({code: RoleCodes.ADMIN})
+    const admin = await this.userRepo.findOne({role: adminRole});
+    const email = admin.email;
+    await this.mailService.send(email, messageText, 'New order');
   }
 }

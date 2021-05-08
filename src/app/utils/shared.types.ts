@@ -27,3 +27,16 @@ export enum OrderStatuses {
   CONFIRMED = 'CONFIRMED',
   DELIVERED = 'DELIVERED'
 }
+
+export interface OrderFields {
+  createdAt: Date,
+  id: string,
+  customerName: string,
+  catalog: string,
+  stuff: string,
+  orderQuantity: number,
+  orderAmount: number,
+  stuffQuantity: number,
+  stuffAmount: number,
+  status: OrderStatuses,
+}

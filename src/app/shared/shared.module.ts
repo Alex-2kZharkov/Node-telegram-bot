@@ -2,14 +2,14 @@ import { Global, HttpModule, Logger, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CatalogRepository, OrderRepository, RoleRepository, StuffRepository, UserfRepository } from "../repositories";
 import { HttpConfigService } from "./services/http-config.service";
-
+import { MailService } from "./services/mail.service";
 
 const REPOSITORIES = [
   CatalogRepository,
   OrderRepository,
   RoleRepository,
   StuffRepository,
-  UserfRepository
+  UserfRepository,
 ];
 
 @Global()
@@ -21,12 +21,8 @@ const REPOSITORIES = [
     }),
     HttpModule,
   ],
-  providers: [Logger],
-  exports: [
-    TypeOrmModule,
-    HttpModule,
-    Logger,
-  ],
+  providers: [Logger, MailService],
+  exports: [TypeOrmModule, HttpModule, Logger],
   controllers: [],
 })
 export class SharedModule {}

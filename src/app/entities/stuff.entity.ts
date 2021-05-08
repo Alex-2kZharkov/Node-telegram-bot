@@ -17,6 +17,7 @@ export class StuffEntity extends AppBaseEntity {
   @ManyToOne(() => CatalogEntity, (catalog) => catalog.stuff, {
     nullable: false,
     onDelete: 'CASCADE',
+    eager: true
   })
   @JoinColumn()
   catalog: CatalogEntity;
