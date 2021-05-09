@@ -25,17 +25,17 @@ export class MailService {
   }
 
   getNewOrderText({
-                    id,
-                    createdAt,
-                    customerName,
-                    catalog,
-                    stuff,
-                    orderQuantity,
-                    orderAmount,
-                    stuffQuantity,
-                    stuffAmount,
-                    status
-                  }: OrderFields): string {
+    id,
+    createdAt,
+    customerName,
+    catalog,
+    stuff,
+    orderQuantity,
+    orderAmount,
+    stuffQuantity,
+    stuffAmount,
+    status,
+  }: OrderFields): string {
     const htmlText = `<body style="font-family: Cambria, Rockwell, serif;font-size: 16px; max-width: 800px; margin-left: auto; margin-right: auto;">
     <h3>Dear admin! This is your <span style="font-family: Kaushan Script, sans-serif; color: #5583ff">@techbot</span></h3>
     <p>I received a new order. Here is goes:</p>
@@ -57,4 +57,3 @@ export class MailService {
     return htmlText;
   }
 }
-

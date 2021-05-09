@@ -76,9 +76,10 @@ export class TelegramService {
   }
 
   async handleCatalogMessage(message: string): Promise<string> {
-    const [parsedMessage] = parseMessage(message, SPLITTER);
+    const [, parsedMessage] = parseMessage(message, SPLITTER);
     const catalogStuff = await this.getStuff(parsedMessage);
     const updatedCatalog = this.countCostPerItem(catalogStuff);
+    console.log(catalogStuff, parsedMessage);
     return formStuffString(updatedCatalog);
   }
 
