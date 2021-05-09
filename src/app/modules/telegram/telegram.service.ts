@@ -1,13 +1,16 @@
 import { Injectable } from "@nestjs/common";
 import { commands } from "../../config/telegram/telegram.config";
 import {
+  AUTH_PREFIX,
   CANCEL_ORDER_PREFIX,
   CATALOG_PREFIX,
   CONFIRM_ORDER_SPLITTER,
   DEFAULT_MESSAGE,
   GREETING,
   NEW_ORDER_PREFIX,
-  SPLITTER
+  SPLITTER,
+  WELCOME_ADMIN_MESSAGE,
+  WRONG_PASSWORD
 } from "../../utils/constants";
 import {
   CatalogRepository,
@@ -28,6 +31,7 @@ import {
 import { OrderEntity, StuffEntity } from "../../entities";
 import { OrderFields, OrderStatuses, RoleCodes } from "../../utils/shared.types";
 import { MailService } from "../../shared/services/mail.service";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class TelegramService {
@@ -70,6 +74,10 @@ export class TelegramService {
 
     if (message.includes(CONFIRM_ORDER_SPLITTER)) {
       return this.confirmOrder(message);
+    }
+
+    if (message.includes(AUTH_PREFIX)) {
+      return this.confirmAdmin(message);
     }
 
     return DEFAULT_MESSAGE;
@@ -160,7 +168,15 @@ export class TelegramService {
     return formConfirmedOrderString(order.users.name, cost);
   }
 
-  async sendNewOrderEmail({id, createdAt, users, stuff, quantity, amount, status}: OrderEntity): Promise<void> {
+  async sendNewOrderEmail({
+    id,
+    createdAt,
+    users,
+    stuff,
+    quantity,
+    amount,
+    status,
+  }: OrderEntity): Promise<void> {
     const orderOptions = {
       status,
       id,
@@ -175,9 +191,17 @@ export class TelegramService {
     } as OrderFields;
 
     const messageText = this.mailService.getNewOrderText(orderOptions);
-    const adminRole = await this.roleRepo.findOne({code: RoleCodes.ADMIN})
-    const admin = await this.userRepo.findOne({role: adminRole});
+    const adminRole = await this.roleRepo.findOne({ code: RoleCodes.ADMIN });
+    const admin = await this.userRepo.findOne({ role: adminRole });
     const email = admin.email;
     await this.mailService.send(email, messageText, 'New order');
+  }
+
+  async confirmAdmin(message: string): Promise<string> {
+    const [, password] = parseMessage(message, AUTH_PREFIX);
+    const adminRole = await this.roleRepo.findOne({ code: RoleCodes.ADMIN });
+    const admin = await this.userRepo.findOne({ role: adminRole });
+    const result = await bcrypt.compare(password, admin.password);
+    return result ? WELCOME_ADMIN_MESSAGE : WRONG_PASSWORD;
   }
 }

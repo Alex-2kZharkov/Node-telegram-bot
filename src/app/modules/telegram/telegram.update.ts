@@ -23,12 +23,15 @@ export class TelegramUpdate {
   }
 
   @On('message')
-  async showCategoryItems(@Message('text') message: string, @Ctx() ctx: Context) {
+  async showCategoryItems(
+    @Message('text') message: string,
+    @Ctx() ctx: Context,
+  ) {
     const result = await this.telegramService.handleTextMessage(ctx, message);
     await ctx.reply(result, { parse_mode: 'HTML' });
 
     if (message.includes(CANCEL_ORDER_PREFIX)) {
-     await this.start(ctx);
+      await this.start(ctx);
     }
   }
 }

@@ -4,6 +4,8 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { TelegrafModule } from "nestjs-telegraf";
 import { config } from "./app/config/app.config";
 import { TelegramModule } from "./app/modules/telegram/telegram.module";
+import { APP_FILTER } from "@nestjs/core";
+import { TelegrafExceptionFilter } from "./app/exception-filters/global-exception-handler.filter";
 
 @Module({
   imports: [
@@ -12,6 +14,12 @@ import { TelegramModule } from "./app/modules/telegram/telegram.module";
       token: config.BOT_TOKEN,
     }),
     TelegramModule,
+  ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: TelegrafExceptionFilter,
+    },
   ],
 })
 export class AppModule {}
