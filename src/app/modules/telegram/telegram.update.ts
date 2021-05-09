@@ -2,7 +2,9 @@ import { Command, Ctx, Message, On, Start, Update } from "nestjs-telegraf";
 import { TelegramService } from "./telegram.service";
 import { Context } from "../interfaces";
 import { formCatalogString } from "../../utils/helpers";
-import { CANCEL_ORDER_PREFIX } from "../../utils/constants";
+import { CANCEL_ORDER_PREFIX, WELCOME_ADMIN_MESSAGE } from "../../utils/constants";
+import { UseGuards } from "@nestjs/common";
+import { AdminGuard } from "../../shared/guards/admin.guard";
 
 @Update()
 export class TelegramUpdate {
@@ -22,7 +24,13 @@ export class TelegramUpdate {
     await ctx.reply(catalogsString, { parse_mode: 'HTML' });
   }
 
-  @On('message')
+  @Command('confirm_order')
+  @UseGuards(AdminGuard)
+  async confirmCustomerOrder(@Ctx() ctx: Context): Promise<void> {
+    ctx.reply(WELCOME_ADMIN_MESSAGE);
+  }
+
+  @On('text') // FIXME it was 'message'
   async showCategoryItems(
     @Message('text') message: string,
     @Ctx() ctx: Context,

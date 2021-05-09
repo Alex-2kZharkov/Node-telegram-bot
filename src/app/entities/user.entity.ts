@@ -24,7 +24,4 @@ export class UserEntity extends AppBaseEntity {
 
   @OneToMany(() => OrderEntity, (orders) => orders.users)
   orders: OrderEntity[];
-
-  @Column('text', {nullable: true})
-  password: string;
 }
