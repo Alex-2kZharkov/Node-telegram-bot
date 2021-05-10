@@ -14,7 +14,7 @@ import {
   OrderRepository,
   RoleRepository,
   StuffRepository,
-  UserfRepository
+  UserRepository
 } from "../../repositories";
 import { Catalog, Context, StuffFields } from "../interfaces";
 import {
@@ -35,7 +35,7 @@ export class TelegramService {
     private catalogRepo: CatalogRepository,
     private stuffRepo: StuffRepository,
     private orderRepo: OrderRepository,
-    private userRepo: UserfRepository,
+    private userRepo: UserRepository,
     private roleRepo: RoleRepository,
     private mailService: MailService,
   ) {}
@@ -106,12 +106,11 @@ export class TelegramService {
     const stuff = await this.stuffRepo.findOne(stuffId);
     const role = await this.roleRepo.findOne({ code: RoleCodes.CUSTOMER });
 
-    const user = this.userRepo.create({
+    const user = await this.userRepo.findOrCreate({
       telegramId: id.toString(),
       name: `${first_name} ${last_name}`,
       role,
     });
-    await user.save();
 
     const order = this.orderRepo.create({
       stuff,
