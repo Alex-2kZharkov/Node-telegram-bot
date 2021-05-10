@@ -1,6 +1,8 @@
 import { Inject, Injectable, Logger, LoggerService } from "@nestjs/common";
 import { config, transporter } from "../../config/app.config";
 import { OrderFields } from "../../utils/shared.types";
+import { OrderEntity } from "../../entities";
+import { ORDERS_MESSAGE } from "../../utils/constants";
 
 @Injectable()
 export class MailService {
@@ -55,5 +57,23 @@ export class MailService {
      <h4 style="color: #000000">Best wishes, your <span style="font-family: Kaushan Script, sans-serif; color: #5583ff">@techbot</span></h4>
     </body>`;
     return htmlText;
+  }
+
+  getOrdersString(orders: OrderEntity[]): string {
+    return orders.reduce((acc, order) => {
+      return (acc += `
+      <b>Order id: </b>${order.id};\n
+      <b>Order status: </b>${order.status};\n
+      <b>Order was created at: </b>${order.createdAt.toLocaleString()};\n
+      <b>Customer name: </b>${order.users.name};\n
+      <b>Catalog name: </b>${order.stuff.catalog.name};\n
+      <b>Stuff: </b>${order.stuff.name};\n
+      <b>Customer ordered next quantity: </b>${order.quantity};\n
+      <b>Customer has to pay: </b>${order.amount};\n
+      <b>Stuff left at the stock: </b>${order.stuff.quantity};\n
+      <b>Cost of stuff at stock: </b>${order.stuff.amount};\n
+      **************************************************************************
+      `);
+    }, ORDERS_MESSAGE);
   }
 }

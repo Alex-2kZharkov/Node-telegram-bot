@@ -26,7 +26,7 @@ import {
   parseMessage
 } from "../../utils/helpers";
 import { OrderEntity, StuffEntity } from "../../entities";
-import { OrderFields, OrderStatuses, RoleCodes } from "../../utils/shared.types";
+import { OrderFields, OrderStatuses, RoleCodes, SortDirection } from "../../utils/shared.types";
 import { MailService } from "../../shared/services/mail.service";
 
 @Injectable()
@@ -187,5 +187,30 @@ export class TelegramService {
     const admin = await this.userRepo.findOne({ role: adminRole });
     const email = admin.email;
     await this.mailService.send(email, messageText, 'New order');
+  }
+
+  async getOrders(): Promise<string> {
+    const orders = await this.orderRepo
+      .createQueryBuilder('order')
+      .select([
+        'order.id',
+        'order.status',
+        'order.createdAt',
+        'user.name',
+        'catalog.name',
+        'stuff.name',
+        'order.quantity',
+        'order.amount',
+        'stuff.quantity',
+        'stuff.amount',
+      ])
+      .leftJoin('order.users', 'user')
+      .leftJoin('order.stuff', 'stuff')
+      .leftJoin('stuff.catalog', 'catalog')
+      .where(`order.status = :status`, { status: OrderStatuses.CONFIRMED })
+      .orderBy('order.createdAt', SortDirection.DESC)
+      .getMany();
+    console.log(orders);
+    return this.mailService.getOrdersString(orders);
   }
 }

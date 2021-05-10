@@ -4,8 +4,8 @@ export const commands = [
     description: 'order something right now 📞'
   },
   {
-    command: '/my_orders',
-    description: 'all of your orders (most relevant first) 🧾'
+    command: '/orders',
+    description: 'all confirmed orders (most recent first) 🧾'
   },
   {
     command: '/order_status',

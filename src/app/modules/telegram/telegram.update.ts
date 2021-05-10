@@ -30,6 +30,13 @@ export class TelegramUpdate {
     ctx.reply(WELCOME_ADMIN_MESSAGE);
   }
 
+  @Command('orders')
+  @UseGuards(AdminGuard)
+  async getOrders(@Ctx() ctx: Context): Promise<void> {
+    const result = await this.telegramService.getOrders();
+    ctx.reply(result, { parse_mode: 'HTML' });
+  }
+
   @On('text') // FIXME it was 'message'
   async showCategoryItems(
     @Message('text') message: string,

@@ -17,7 +17,7 @@ export class AdminGuard implements CanActivate {
       const isAdmin = await bcrypt.compare(from.id.toString(), id);
 
       if (!isAdmin) {
-        throw new TelegrafException('You are not admin ⛔️');
+        throw new TelegrafException('Sorry, but you are not admin ⛔️');
       }
     }
     return true;
