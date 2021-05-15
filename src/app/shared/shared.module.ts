@@ -3,6 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { CatalogRepository, OrderRepository, RoleRepository, StuffRepository, UserRepository } from "../repositories";
 import { HttpConfigService } from "./services/http-config.service";
 import { MailService } from "./services/mail.service";
+import { AuthService } from "./services/auth.service";
 
 const REPOSITORIES = [
   CatalogRepository,
@@ -21,7 +22,7 @@ const REPOSITORIES = [
     }),
     HttpModule,
   ],
-  providers: [Logger, MailService],
+  providers: [Logger, MailService, AuthService],
   exports: [TypeOrmModule, HttpModule, Logger],
   controllers: [],
 })

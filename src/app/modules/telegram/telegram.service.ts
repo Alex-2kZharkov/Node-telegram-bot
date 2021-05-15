@@ -33,6 +33,7 @@ import { OrderEntity, StuffEntity } from "../../entities";
 import { OrderFields, OrderStatuses, RoleCodes, SortDirection } from "../../utils/shared.types";
 import { MailService } from "../../shared/services/mail.service";
 import * as bcrypt from "bcrypt";
+import { AuthService } from "../../shared/services/auth.service";
 
 @Injectable()
 export class TelegramService {
@@ -43,24 +44,11 @@ export class TelegramService {
     private userRepo: UserRepository,
     private roleRepo: RoleRepository,
     private mailService: MailService,
+    private authService: AuthService
   ) {}
 
   async getGreetings(ctx: Context): Promise<string> {
-    const { id } = ctx.from;
-    const users = await this.userRepo
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.role', 'role')
-      .getMany();
-    const admins = users.filter((x) => x.role.code === RoleCodes.ADMIN);
-    let isAdmin = false;
-
-    for (const admin of admins) {
-      isAdmin = await bcrypt.compare(id.toString(), admin.telegramId);
-      if (isAdmin) {
-        break;
-      }
-    }
-
+    const isAdmin = await this.authService.isAdmin(ctx.from.id.toString());
     return isAdmin
       ? formGreetings(commands)
       : formGreetings(
