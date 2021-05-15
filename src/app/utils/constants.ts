@@ -11,7 +11,7 @@ export const PICK_CATALOG_TEXT =
   '<b>Pick name of the catalog (write "catalog-<i>catalogName</i>"):</b>\n';
 export const DEFAULT_MESSAGE = `I didn't understand you. Please, type your message with specified prefix`;
 export const SALT_ROUNDS = 12;
-export const WELCOME_ADMIN_MESSAGE = 'Good to see you, admin🦾';
 export const ORDERS_MESSAGE =
   'Here go orders 🚀(<i>most recent first, of course)</i>\n\n';
-export const DELIVER_ORDER_PREFIX = '/deliver_order'
+export const ORDER_UPDATED_MESSAGE =
+  'Dear customer, your order has received new DELIVERED status which means that you already got the product that you needed';

@@ -30,6 +30,7 @@ export enum OrderStatuses {
 
 export interface OrderFields {
   createdAt: Date,
+  updatedAt: Date,
   id: string,
   customerName: string,
   catalog: string,

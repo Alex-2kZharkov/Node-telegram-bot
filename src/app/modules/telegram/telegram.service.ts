@@ -7,6 +7,8 @@ import {
   DEFAULT_MESSAGE,
   GREETING,
   NEW_ORDER_PREFIX,
+  ORDER_UPDATED_MESSAGE,
+  ORDERS_MESSAGE,
   SPLITTER
 } from "../../utils/constants";
 import {
@@ -75,12 +77,21 @@ export class TelegramService {
 
     const orders = await this.orderRepo
       .createQueryBuilder('order')
-      .select('order.id')
+      .leftJoinAndSelect('order.users', 'users')
+      .leftJoinAndSelect('order.users', 'user')
+      .leftJoinAndSelect('order.stuff', 'stuff')
+      .leftJoinAndSelect('stuff.catalog', 'catalog')
       .getMany();
 
-    const ordersId = orders.map((x) => x.id);
-    if (ordersId.includes(message)) {
-      return this.deliverOrder(message);
+    const order = orders.find((order) => order.id === message);
+    if (order) {
+      const resultsMessage = await this.deliverOrder(message);
+      ctx.telegram.sendMessage(
+        order.users.telegramId,
+        this.mailService.getOrdersString([order], ORDER_UPDATED_MESSAGE),
+        { parse_mode: 'HTML' }
+      );
+      return resultsMessage
     }
 
     return DEFAULT_MESSAGE;
@@ -173,6 +184,7 @@ export class TelegramService {
   async sendNewOrderEmail({
     id,
     createdAt,
+    updatedAt,
     users,
     stuff,
     quantity,
@@ -183,6 +195,7 @@ export class TelegramService {
       status,
       id,
       createdAt,
+      updatedAt,
       catalog: stuff.catalog.name,
       customerName: users.name,
       stuff: stuff.name,
@@ -221,13 +234,13 @@ export class TelegramService {
       .orderBy('order.createdAt', SortDirection.DESC)
       .getMany();
 
-    return this.mailService.getOrdersString(orders);
+    return this.mailService.getOrdersString(orders, ORDERS_MESSAGE);
   }
 
   async deliverOrder(orderId: string): Promise<string> {
     const order = await this.orderRepo.findOne(orderId);
     order.status = OrderStatuses.DELIVERED;
-    await order.save();
+    await this.orderRepo.update(orderId, order);
     return getDeliverOrderString(orderId);
   }
 }

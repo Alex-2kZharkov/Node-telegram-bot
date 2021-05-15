@@ -9,6 +9,7 @@ export const config = {
   BOT_TOKEN: process.env.BOT_TOKEN,
   TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID,
   MAIL_SENDER: process.env.MAIL_SENDER,
+  ADMIN_TELEGRAM_ID: process.env.ADMIN_TELEGRAM_ID
 };
 
 export const transporter = nodemailer.createTransport({

@@ -37,7 +37,7 @@ export class TelegramUpdate {
     await ctx.reply('Now send ID of order which was delivered');
   }
 
-  @On('text') // FIXME it was 'message'
+  @On('text')
   async showCategoryItems(
     @Message('text') message: string,
     @Ctx() ctx: Context,
