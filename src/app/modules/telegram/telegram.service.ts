@@ -5,10 +5,10 @@ import {
   CATALOG_PREFIX,
   CONFIRM_ORDER_SPLITTER,
   DEFAULT_MESSAGE,
-  GREETING,
   NEW_ORDER_PREFIX,
   ORDER_UPDATED_MESSAGE,
   ORDERS_MESSAGE,
+  SALT_ROUNDS,
   SPLITTER
 } from "../../utils/constants";
 import {
@@ -22,6 +22,7 @@ import { Catalog, Context, StuffFields } from "../interfaces";
 import {
   formCancelledOrderString,
   formConfirmedOrderString,
+  formGreetings,
   formNotEnoughStuff,
   formOrderOptions,
   formStuffString,
@@ -31,6 +32,7 @@ import {
 import { OrderEntity, StuffEntity } from "../../entities";
 import { OrderFields, OrderStatuses, RoleCodes, SortDirection } from "../../utils/shared.types";
 import { MailService } from "../../shared/services/mail.service";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class TelegramService {
@@ -42,12 +44,28 @@ export class TelegramService {
     private roleRepo: RoleRepository,
     private mailService: MailService,
   ) {}
-  getGreetings(): string {
-    return commands.reduce(
-      (acc, item, idx) =>
-        (acc += `${idx + 1}. ${item.command} - ${item.description}\n`),
-      GREETING,
-    );
+
+  async getGreetings(ctx: Context): Promise<string> {
+    const { id } = ctx.from;
+    const users = await this.userRepo
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.role', 'role')
+      .getMany();
+    const admins = users.filter((x) => x.role.code === RoleCodes.ADMIN);
+    let isAdmin = false;
+
+    for (const admin of admins) {
+      isAdmin = await bcrypt.compare(id.toString(), admin.telegramId);
+      if (isAdmin) {
+        break;
+      }
+    }
+
+    return isAdmin
+      ? formGreetings(commands)
+      : formGreetings(
+          commands.filter((x) => x.roles.includes(RoleCodes.CUSTOMER)),
+        );
   }
 
   async getCatalogsNames(): Promise<Catalog[]> {
@@ -89,9 +107,9 @@ export class TelegramService {
       ctx.telegram.sendMessage(
         order.users.telegramId,
         this.mailService.getOrdersString([order], ORDER_UPDATED_MESSAGE),
-        { parse_mode: 'HTML' }
+        { parse_mode: 'HTML' },
       );
-      return resultsMessage
+      return resultsMessage;
     }
 
     return DEFAULT_MESSAGE;
@@ -127,9 +145,10 @@ export class TelegramService {
     const { id, first_name, last_name } = ctx.from;
     const stuff = await this.stuffRepo.findOne(stuffId);
     const role = await this.roleRepo.findOne({ code: RoleCodes.CUSTOMER });
+    const hashedId = await bcrypt.hash(id.toString(), SALT_ROUNDS);
 
     const user = await this.userRepo.findOrCreate({
-      telegramId: id.toString(),
+      telegramId: hashedId,
       name: `${first_name} ${last_name}`,
       role,
     });

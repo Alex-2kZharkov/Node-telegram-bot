@@ -12,7 +12,7 @@ export class TelegramUpdate {
 
   @Start()
   async start(@Ctx() ctx: Context) {
-    const greetings = this.telegramService.getGreetings();
+    const greetings = await this.telegramService.getGreetings(ctx);
     await ctx.reply(greetings);
   }
 
