@@ -23,6 +23,7 @@ import {
   formNotEnoughStuff,
   formOrderOptions,
   formStuffString,
+  getDeliverOrderString,
   parseMessage
 } from "../../utils/helpers";
 import { OrderEntity, StuffEntity } from "../../entities";
@@ -72,6 +73,16 @@ export class TelegramService {
       return this.confirmOrder(message);
     }
 
+    const orders = await this.orderRepo
+      .createQueryBuilder('order')
+      .select('order.id')
+      .getMany();
+
+    const ordersId = orders.map((x) => x.id);
+    if (ordersId.includes(message)) {
+      return this.deliverOrder(message);
+    }
+
     return DEFAULT_MESSAGE;
   }
 
@@ -79,7 +90,7 @@ export class TelegramService {
     const [, parsedMessage] = parseMessage(message, SPLITTER);
     const catalogStuff = await this.getStuff(parsedMessage);
     const updatedCatalog = this.countCostPerItem(catalogStuff);
-    console.log(catalogStuff, parsedMessage);
+
     return formStuffString(updatedCatalog);
   }
 
@@ -209,7 +220,14 @@ export class TelegramService {
       .where(`order.status = :status`, { status: OrderStatuses.CONFIRMED })
       .orderBy('order.createdAt', SortDirection.DESC)
       .getMany();
-    console.log(orders);
+
     return this.mailService.getOrdersString(orders);
+  }
+
+  async deliverOrder(orderId: string): Promise<string> {
+    const order = await this.orderRepo.findOne(orderId);
+    order.status = OrderStatuses.DELIVERED;
+    await order.save();
+    return getDeliverOrderString(orderId);
   }
 }

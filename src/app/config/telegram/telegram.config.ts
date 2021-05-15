@@ -9,10 +9,10 @@ export const commands = [
   },
   {
     command: '/order_status',
-    description: 'was your order accepted by admin ❓'
+    description: 'was your order delivered yet ❓'
   },
   {
-    command: '/confirm_order',
-    description: 'admin confirms the order ✅'
+    command: '/deliver_order',
+    description: 'admin confirms that order was delivered ✅'
   }
 ]

@@ -39,3 +39,7 @@ export const formConfirmedOrderString = (name: string, totalAmount: number): str
   return `Dear, ${name}, your order was ${OrderStatuses.CONFIRMED}. You have to pay \n💸<b>${totalAmount}</b> when you and our employee meet each other.
   Thanks for the shopping. You can try something else`;
 }
+
+export const getDeliverOrderString = id => {
+  return `Order with ID = ${id} marked as ${OrderStatuses.DELIVERED}. THe email notification was sent to customer`;
+}
