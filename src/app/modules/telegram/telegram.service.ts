@@ -3,12 +3,12 @@ import { commands } from "../../config/telegram/telegram.config";
 import {
   CANCEL_ORDER_PREFIX,
   CATALOG_PREFIX,
-  CONFIRM_ORDER_SPLITTER,
   DEFAULT_MESSAGE,
   NEW_ORDER_PREFIX,
   ORDER_UPDATED_MESSAGE,
   ORDERS_MESSAGE,
   SALT_ROUNDS,
+  SEMICOLON_SPLITTER,
   SPLITTER
 } from "../../utils/constants";
 import {
@@ -30,7 +30,7 @@ import {
   parseMessage
 } from "../../utils/helpers";
 import { OrderEntity, StuffEntity } from "../../entities";
-import { OrderFields, OrderStatuses, RoleCodes, SortDirection } from "../../utils/shared.types";
+import { OrderFields, OrderStatuses, RoleCodes } from "../../utils/shared.types";
 import { MailService } from "../../shared/services/mail.service";
 import * as bcrypt from "bcrypt";
 import { AuthService } from "../../shared/services/auth.service";
@@ -44,7 +44,7 @@ export class TelegramService {
     private userRepo: UserRepository,
     private roleRepo: RoleRepository,
     private mailService: MailService,
-    private authService: AuthService
+    private authService: AuthService,
   ) {}
 
   async getGreetings(ctx: Context): Promise<string> {
@@ -77,18 +77,11 @@ export class TelegramService {
       return this.cancelOrder(message);
     }
 
-    if (message.includes(CONFIRM_ORDER_SPLITTER)) {
+    if (message.includes(SEMICOLON_SPLITTER)) {
       return this.confirmOrder(message);
     }
 
-    const orders = await this.orderRepo
-      .createQueryBuilder('order')
-      .leftJoinAndSelect('order.users', 'users')
-      .leftJoinAndSelect('order.users', 'user')
-      .leftJoinAndSelect('order.stuff', 'stuff')
-      .leftJoinAndSelect('stuff.catalog', 'catalog')
-      .getMany();
-
+    const orders = await this.orderRepo.getOrders();
     const order = orders.find((order) => order.id === message);
     if (order) {
       const resultsMessage = await this.deliverOrder(message);
@@ -161,10 +154,7 @@ export class TelegramService {
   }
 
   async confirmOrder(message: string) {
-    const [orderId, strQuantity] = parseMessage(
-      message,
-      CONFIRM_ORDER_SPLITTER,
-    );
+    const [orderId, strQuantity] = parseMessage(message, SEMICOLON_SPLITTER);
     const requiredQuantity = +strQuantity;
     const order = await this.orderRepo.findOne(orderId);
     const { quantity, amount } = order.stuff;
@@ -220,28 +210,12 @@ export class TelegramService {
   }
 
   async getOrders(): Promise<string> {
-    const orders = await this.orderRepo
-      .createQueryBuilder('order')
-      .select([
-        'order.id',
-        'order.status',
-        'order.createdAt',
-        'user.name',
-        'catalog.name',
-        'stuff.name',
-        'order.quantity',
-        'order.amount',
-        'stuff.quantity',
-        'stuff.amount',
-      ])
-      .leftJoin('order.users', 'user')
-      .leftJoin('order.stuff', 'stuff')
-      .leftJoin('stuff.catalog', 'catalog')
-      .where(`order.status = :status`, { status: OrderStatuses.CONFIRMED })
-      .orderBy('order.createdAt', SortDirection.DESC)
-      .getMany();
+    const orders = await this.orderRepo.getOrders();
+    const confirmedOrders = orders
+      .filter((x) => x.status === OrderStatuses.CONFIRMED)
+      .sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
 
-    return this.mailService.getOrdersString(orders, ORDERS_MESSAGE);
+    return this.mailService.getOrdersString(confirmedOrders, ORDERS_MESSAGE);
   }
 
   async deliverOrder(orderId: string): Promise<string> {

@@ -20,6 +20,6 @@ export class AuthService {
         return isAdmin;
       }
     }
-    return false;
+    return isAdmin;
   }
 }

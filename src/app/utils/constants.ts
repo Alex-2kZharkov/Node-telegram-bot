@@ -3,7 +3,7 @@ export const GREETING =
 export const CATALOG_PREFIX = 'catalog-';
 export const NEW_ORDER_PREFIX = 'new:';
 export const CANCEL_ORDER_PREFIX = ':cancel';
-export const CONFIRM_ORDER_SPLITTER = ':';
+export const SEMICOLON_SPLITTER = ':';
 export const SPLITTER = '-';
 export const STUFF_TITLE =
   '<b>Here you go, dear friend. When you are ready to choose write new:id (id from stuff list)</b> \n';
@@ -15,3 +15,6 @@ export const ORDERS_MESSAGE =
   'Here go orders 🚀(<i>most recent first, of course)</i>\n\n';
 export const ORDER_UPDATED_MESSAGE =
   'Dear customer, your order has received new DELIVERED status which means that you already got the product that you needed';
+export const NEW_CATALOG_MESSAGE =
+  'Now to create catalog send message like this: new_catalog:catalog_name:catalog_description';
+export const DELIVER_ORDER_MESSAGE = 'Now send ID of order which was delivered';

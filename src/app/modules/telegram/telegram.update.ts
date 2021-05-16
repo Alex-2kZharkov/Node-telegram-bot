@@ -2,7 +2,7 @@ import { Command, Ctx, Message, On, Start, Update } from "nestjs-telegraf";
 import { TelegramService } from "./telegram.service";
 import { Context } from "../interfaces";
 import { formCatalogString } from "../../utils/helpers";
-import { CANCEL_ORDER_PREFIX } from "../../utils/constants";
+import { CANCEL_ORDER_PREFIX, DELIVER_ORDER_MESSAGE, NEW_CATALOG_MESSAGE } from "../../utils/constants";
 import { UseGuards } from "@nestjs/common";
 import { AdminGuard } from "../../shared/guards/admin.guard";
 
@@ -34,7 +34,13 @@ export class TelegramUpdate {
   @Command('deliver_order')
   @UseGuards(AdminGuard)
   async prepareOrder(@Ctx() ctx: Context): Promise<void> {
-    await ctx.reply('Now send ID of order which was delivered');
+    await ctx.reply(DELIVER_ORDER_MESSAGE);
+  }
+
+  @Command('new_catalog')
+  @UseGuards(AdminGuard)
+  async sendNewCatalogMessage(@Ctx() ctx: Context): Promise<void> {
+    await ctx.reply(NEW_CATALOG_MESSAGE);
   }
 
   @On('text')
