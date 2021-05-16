@@ -69,6 +69,8 @@ export class TelegramService {
   }
 
   async handleTextMessage(ctx: Context, message: string): Promise<string> {
+    const isAdmin = await this.authService.isAdmin(ctx.from.id.toString());
+
     if (message.includes(CATALOG_PREFIX)) {
       return this.handleCatalogMessage(message);
     }
@@ -97,7 +99,7 @@ export class TelegramService {
       return resultsMessage;
     }
 
-    if (message.includes(NEW_CATALOG_PREFIX)) {
+    if (isAdmin && message.includes(NEW_CATALOG_PREFIX)) {
       await this.addCatalog(message);
       const catalogs = await this.getCatalogsNames();
       return formCatalogString(catalogs, CATALOG_TITLE);
