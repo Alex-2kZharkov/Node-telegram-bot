@@ -8,11 +8,13 @@ import {
   DEFAULT_MESSAGE,
   NEW_CATALOG_PREFIX,
   NEW_ORDER_PREFIX,
+  NEW_STUFF_PREFIX,
   ORDER_UPDATED_MESSAGE,
   ORDERS_MESSAGE,
   SALT_ROUNDS,
   SEMICOLON_SPLITTER,
-  SPLITTER
+  SPLITTER,
+  STUFF_MESSAGE
 } from "../../utils/constants";
 import {
   CatalogRepository,
@@ -38,6 +40,7 @@ import { OrderFields, OrderStatuses, RoleCodes } from "../../utils/shared.types"
 import { MailService } from "../../shared/services/mail.service";
 import * as bcrypt from "bcrypt";
 import { AuthService } from "../../shared/services/auth.service";
+import { ILike } from "typeorm";
 
 @Injectable()
 export class TelegramService {
@@ -72,7 +75,7 @@ export class TelegramService {
     const isAdmin = await this.authService.isAdmin(ctx.from.id.toString());
 
     if (message.includes(CATALOG_PREFIX)) {
-      return this.handleCatalogMessage(message);
+      return this.getCatalogsStuff(message);
     }
 
     if (message.includes(NEW_ORDER_PREFIX)) {
@@ -105,24 +108,46 @@ export class TelegramService {
       return formCatalogString(catalogs, CATALOG_TITLE);
     }
 
+    if (isAdmin && message.includes(NEW_STUFF_PREFIX)) {
+      await this.addStuff(message);
+      const catalogs = await this.getCatalogsNames();
+      const catalogsNames = catalogs.map((x) => x.name);
+      const catalogsStuff = await this.getStuff(catalogsNames);
+      const orderedCatalogStuff = catalogsStuff.sort(
+        (a, b) => Number(a.createdAt) - Number(b.createdAt),
+      );
+
+      return this.mailService.getStuffString(
+        orderedCatalogStuff,
+        STUFF_MESSAGE,
+      );
+    }
+
     return DEFAULT_MESSAGE;
   }
 
-  async handleCatalogMessage(message: string): Promise<string> {
-    const [, parsedMessage] = parseMessage(message, SPLITTER);
-    const catalogStuff = await this.getStuff(parsedMessage);
+  async getCatalogsStuff(message: string): Promise<string> {
+    const [, catalogName] = parseMessage(message, SPLITTER);
+    const catalogStuff = await this.getStuff([catalogName]);
     const updatedCatalog = this.countCostPerItem(catalogStuff);
 
     return formStuffString(updatedCatalog);
   }
 
-  async getStuff(catalog: string): Promise<StuffEntity[]> {
-    return await this.stuffRepo
-      .createQueryBuilder('stuff')
-      .select(['stuff.id', 'stuff.name', 'stuff.amount', 'stuff.quantity'])
-      .leftJoin('stuff.catalog', 'catalog')
-      .where('catalog.name ILIKE :catalog', { catalog })
-      .getMany();
+  async getStuff(catalogs: string[]): Promise<StuffEntity[]> {
+    let stuff = [] as StuffEntity[];
+
+    for (const catalog of catalogs) {
+      const gg = await this.stuffRepo
+        .createQueryBuilder('stuff')
+        .leftJoinAndSelect('stuff.catalog', 'catalog')
+        .where('catalog.name ILIKE :catalog', { catalog })
+        .getMany();
+
+      stuff = [...stuff, ...gg];
+    }
+
+    return stuff;
   }
 
   countCostPerItem(stuff: StuffEntity[]): StuffFields[] {
@@ -244,5 +269,21 @@ export class TelegramService {
       catalog = this.catalogRepo.create({ name, description });
       await catalog.save();
     }
+  }
+
+  async addStuff(message: string): Promise<void> {
+    const [, name, quantity, amount, catalogName] = parseMessage(
+      message,
+      AMPERSAND_SPLITTER,
+    );
+    const catalog = await this.catalogRepo.findOne({
+      name: ILike(`%${catalogName}%`),
+    });
+    const stuff = this.stuffRepo.create();
+    stuff.name = name;
+    stuff.quantity = Number(quantity);
+    stuff.amount = Number(amount);
+    stuff.catalog = catalog;
+    await stuff.save();
   }
 }

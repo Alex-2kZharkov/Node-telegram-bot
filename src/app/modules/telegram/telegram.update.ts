@@ -6,6 +6,7 @@ import {
   CANCEL_ORDER_PREFIX,
   DELIVER_ORDER_MESSAGE,
   NEW_CATALOG_MESSAGE,
+  NEW_STUFF_MESSAGE,
   PICK_CATALOG_TEXT
 } from "../../utils/constants";
 import { UseGuards } from "@nestjs/common";
@@ -46,6 +47,12 @@ export class TelegramUpdate {
   @UseGuards(AdminGuard)
   async sendNewCatalogMessage(@Ctx() ctx: Context): Promise<void> {
     await ctx.reply(NEW_CATALOG_MESSAGE);
+  }
+
+  @Command('new_stuff')
+  @UseGuards(AdminGuard)
+  async sendNewStuffMessage(@Ctx() ctx: Context): Promise<void> {
+    await ctx.reply(NEW_STUFF_MESSAGE);
   }
 
   @On('text')

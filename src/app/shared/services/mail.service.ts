@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger, LoggerService } from "@nestjs/common";
 import { config, transporter } from "../../config/app.config";
 import { OrderFields } from "../../utils/shared.types";
-import { OrderEntity } from "../../entities";
+import { OrderEntity, StuffEntity } from "../../entities";
 
 @Injectable()
 export class MailService {
@@ -74,6 +74,21 @@ export class MailService {
       <b>Customer has to pay: </b>${order.amount};\n
       <b>Stuff left at the stock: </b>${order.stuff.quantity};\n
       <b>Cost of stuff at stock: </b>${order.stuff.amount};\n
+      **************************************************************************
+      `);
+    }, title);
+  }
+
+  getStuffString(stuff: StuffEntity[], title: string): string {
+    return stuff.reduce((acc, x) => {
+      return (acc += `
+      <b>Stuff id: </b>${x.id};\n
+      <b>Stuff was created at: </b>${x.createdAt.toLocaleString()};\n
+      <b>Stuff was updated at: </b>${x.updatedAt.toLocaleString()};\n
+      <b>Catalog name: </b>${x.catalog.name};\n
+      <b>Stuff: </b>${x.name};\n
+      <b>Stuff at the stock: </b>${x.quantity};\n
+      <b>Cost of stuff at stock: </b>${x.amount};\n
       **************************************************************************
       `);
     }, title);
