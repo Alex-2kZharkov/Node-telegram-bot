@@ -16,5 +16,9 @@ export const ORDERS_MESSAGE =
 export const ORDER_UPDATED_MESSAGE =
   'Dear customer, your order has received new DELIVERED status which means that you already got the product that you needed';
 export const NEW_CATALOG_MESSAGE =
-  'Now to create catalog send message like this: new_catalog:catalog_name:catalog_description';
+  'Now to create catalog send message like this: new_catalog&catalog_name&catalog_description';
+export const NEW_CATALOG_PREFIX = 'new_catalog&' +
+  '';
 export const DELIVER_ORDER_MESSAGE = 'Now send ID of order which was delivered';
+export const AMPERSAND_SPLITTER = '&';
+export const CATALOG_TITLE = 'Here go catalogs 📜\n';

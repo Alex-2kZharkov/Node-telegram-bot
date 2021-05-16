@@ -1,9 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { commands } from "../../config/telegram/telegram.config";
 import {
+  AMPERSAND_SPLITTER,
   CANCEL_ORDER_PREFIX,
   CATALOG_PREFIX,
+  CATALOG_TITLE,
   DEFAULT_MESSAGE,
+  NEW_CATALOG_PREFIX,
   NEW_ORDER_PREFIX,
   ORDER_UPDATED_MESSAGE,
   ORDERS_MESSAGE,
@@ -21,6 +24,7 @@ import {
 import { Catalog, Context, StuffFields } from "../interfaces";
 import {
   formCancelledOrderString,
+  formCatalogString,
   formConfirmedOrderString,
   formGreetings,
   formNotEnoughStuff,
@@ -91,6 +95,12 @@ export class TelegramService {
         { parse_mode: 'HTML' },
       );
       return resultsMessage;
+    }
+
+    if (message.includes(NEW_CATALOG_PREFIX)) {
+      await this.addCatalog(message);
+      const catalogs = await this.getCatalogsNames();
+      return formCatalogString(catalogs, CATALOG_TITLE);
     }
 
     return DEFAULT_MESSAGE;
@@ -223,5 +233,14 @@ export class TelegramService {
     order.status = OrderStatuses.DELIVERED;
     await this.orderRepo.update(orderId, order);
     return getDeliverOrderString(orderId);
+  }
+
+  async addCatalog(message: string): Promise<void> {
+    const [, name, description] = parseMessage(message, AMPERSAND_SPLITTER);
+    let catalog = await this.catalogRepo.findOne({ name });
+    if (!catalog) {
+      catalog = this.catalogRepo.create({ name, description });
+      await catalog.save();
+    }
   }
 }

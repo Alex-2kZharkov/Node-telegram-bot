@@ -1,12 +1,15 @@
 import { Catalog, StuffFields } from "../modules/interfaces";
-import { GREETING, PICK_CATALOG_TEXT, STUFF_TITLE } from "./constants";
+import { GREETING, STUFF_TITLE } from "./constants";
 import { OrderStatuses } from "./shared.types";
 import { CommandFields } from "../config/telegram/telegram.config";
 
-export const formCatalogString = (catalogs: Catalog[]): string => {
+export const formCatalogString = (
+  catalogs: Catalog[],
+  title: string,
+): string => {
   return catalogs.reduce(
     (acc, item) => (acc += `● ${item.name} - ${item.description}\n`),
-    PICK_CATALOG_TEXT,
+    title,
   );
 };
 
