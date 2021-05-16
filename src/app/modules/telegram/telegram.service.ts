@@ -279,8 +279,12 @@ export class TelegramService {
     const catalog = await this.catalogRepo.findOne({
       name: ILike(`%${catalogName}%`),
     });
-    let stuff = await this.stuffRepo.findOne({ name });
+    let stuff = await this.stuffRepo.findOne({
+      name: ILike(`%${name}%`),
+    });
+
     if (!stuff) {
+      stuff = this.stuffRepo.create();
       stuff.name = name;
       stuff.quantity = Number(quantity);
       stuff.amount = Number(amount);
